@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, MessageCircle, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import Logo from "../../assets/logosmall.svg";
-
-// Optional, add once in your global CSS:
-// @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&display=swap');
 
 const navLinks = [
   {
     name: "Download TikTok",
     href: "/",
-    title: "Download TikTok Stories",
+    title: "Download TikTok Videos",
     dot: "bg-gradient-to-br from-[#25F4EE] to-[#FE2C55]",
     pill: "bg-gradient-to-r from-[#25F4EE]/15 to-[#FE2C55]/15",
   },
@@ -22,9 +20,9 @@ const navLinks = [
     pill: "bg-gradient-to-r from-[#F58529]/15 via-[#DD2A7B]/15 to-[#515BD4]/15",
   },
   {
-    name: "Download Youtube",
+    name: "Download YouTube",
     href: "/youtubedownloader",
-    title: "Download Youtube video",
+    title: "Download YouTube Videos",
     dot: "bg-[#FF0033]",
     pill: "bg-[#FF0033]/10",
   },
@@ -36,7 +34,9 @@ const Navbar = () => {
   const [hovered, setHovered] = useState(null);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+    };
 
     onScroll();
 
@@ -46,6 +46,30 @@ const Navbar = () => {
       window.removeEventListener("scroll", onScroll);
     };
   }, []);
+
+  // Close mobile menu when screen becomes desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Close menu after navigation
+  const handleNavigation = () => {
+    setMenuOpen(false);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <>
@@ -58,12 +82,10 @@ const Navbar = () => {
         transition={{ duration: 0.5 }}
         className="relative z-[60] w-full overflow-hidden bg-slate-950"
       >
-        {/* Subtle glow */}
         <div className="pointer-events-none absolute left-1/2 top-0 h-full w-80 -translate-x-1/2 bg-[#25D366]/5 blur-2xl" />
 
         <div className="relative mx-auto flex min-h-[40px] items-center justify-center px-4 py-2 text-center">
           <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[11px] font-medium leading-5 text-slate-300 sm:text-xs">
-
             <span className="inline-flex items-center gap-1.5">
               <AlertCircle className="h-3.5 w-3.5 text-amber-400" />
 
@@ -74,9 +96,7 @@ const Navbar = () => {
               •
             </span>
 
-            <span>
-              Contact us on WhatsApp:
-            </span>
+            <span>Contact us on WhatsApp:</span>
 
             <a
               href="https://wa.me/923077484583"
@@ -97,9 +117,7 @@ const Navbar = () => {
       ===================================================== */}
       <div
         className={`sticky top-0 z-50 w-full transition-all duration-500 ease-out ${
-          scrolled
-            ? "px-3 pt-3 md:px-6"
-            : "px-0 pt-0"
+          scrolled ? "px-3 pt-3 md:px-6" : "px-0 pt-0"
         }`}
       >
         <motion.nav
@@ -118,23 +136,25 @@ const Navbar = () => {
           {/* =================================================
               LOGO
           ================================================= */}
-          <motion.a
-            href="/"
-            initial={{
-              opacity: 0,
-              x: -40,
-            }}
-            animate={{
-              opacity: 1,
-              x: 0,
-            }}
-            transition={{
-              delay: 0.2,
-            }}
+          <Link
+            to="/"
+            onClick={handleNavigation}
             className="group flex items-center gap-2.5"
           >
-            <span className="relative flex items-center justify-center">
-
+            <motion.span
+              initial={{
+                opacity: 0,
+                x: -40,
+              }}
+              animate={{
+                opacity: 1,
+                x: 0,
+              }}
+              transition={{
+                delay: 0.2,
+              }}
+              className="relative flex items-center justify-center"
+            >
               {/* Logo Glow */}
               <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-rose-500 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-40" />
 
@@ -144,13 +164,13 @@ const Navbar = () => {
                 alt="Media Downloader logo"
               />
 
-              {/* Online indicator */}
+              {/* Online Indicator */}
               <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
 
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full border border-white bg-emerald-500" />
               </span>
-            </span>
+            </motion.span>
 
             <div className="flex flex-col leading-none">
               <h1
@@ -167,7 +187,7 @@ const Navbar = () => {
                 Fast · Free · No login
               </span>
             </div>
-          </motion.a>
+          </Link>
 
           {/* =================================================
               DESKTOP LINKS
@@ -178,7 +198,7 @@ const Navbar = () => {
           >
             {navLinks.map((link, index) => (
               <li
-                key={index}
+                key={link.href}
                 onMouseEnter={() => setHovered(index)}
                 className="relative"
               >
@@ -194,8 +214,8 @@ const Navbar = () => {
                   />
                 )}
 
-                <a
-                  href={link.href}
+                <Link
+                  to={link.href}
                   title={link.title}
                   className="relative z-10 flex items-center gap-2 rounded-full px-4 py-2 text-[15px] font-semibold text-slate-600 transition-colors hover:text-slate-900 lg:text-base"
                 >
@@ -204,7 +224,7 @@ const Navbar = () => {
                   />
 
                   {link.name}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
@@ -213,20 +233,13 @@ const Navbar = () => {
               MOBILE MENU BUTTON
           ================================================= */}
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label={
-              menuOpen
-                ? "Close menu"
-                : "Open menu"
-            }
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
             className="rounded-lg p-1.5 text-slate-700 transition-colors hover:bg-slate-100 hover:text-indigo-600 md:hidden"
           >
-            {menuOpen ? (
-              <X size={28} />
-            ) : (
-              <Menu size={28} />
-            )}
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </motion.nav>
       </div>
@@ -241,30 +254,18 @@ const Navbar = () => {
             <motion.div
               key="overlay"
               onClick={() => setMenuOpen(false)}
-              initial={{
-                opacity: 0,
-              }}
-              animate={{
-                opacity: 1,
-              }}
-              exit={{
-                opacity: 0,
-              }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm md:hidden"
             />
 
             {/* Drawer */}
             <motion.div
               key="panel"
-              initial={{
-                x: "100%",
-              }}
-              animate={{
-                x: 0,
-              }}
-              exit={{
-                x: "100%",
-              }}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
               transition={{
                 type: "spring",
                 stiffness: 320,
@@ -275,9 +276,8 @@ const Navbar = () => {
               {/* Close */}
               <div className="mb-8 flex justify-end">
                 <button
-                  onClick={() =>
-                    setMenuOpen(false)
-                  }
+                  type="button"
+                  onClick={() => setMenuOpen(false)}
                   aria-label="Close menu"
                   className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
                 >
@@ -287,28 +287,25 @@ const Navbar = () => {
 
               {/* Links */}
               <div className="flex flex-1 flex-col gap-1">
-                {navLinks.map(
-                  (link, index) => (
-                    <motion.a
-                      key={index}
-                      href={link.href}
+                {navLinks.map((link, index) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{
+                      opacity: 0,
+                      x: 20,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      x: 0,
+                    }}
+                    transition={{
+                      delay: 0.08 * index + 0.1,
+                    }}
+                  >
+                    <Link
+                      to={link.href}
                       title={link.title}
-                      onClick={() =>
-                        setMenuOpen(false)
-                      }
-                      initial={{
-                        opacity: 0,
-                        x: 20,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        x: 0,
-                      }}
-                      transition={{
-                        delay:
-                          0.08 * index +
-                          0.1,
-                      }}
+                      onClick={handleNavigation}
                       className="flex items-center gap-3 rounded-xl px-4 py-3 font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                     >
                       <span
@@ -316,14 +313,13 @@ const Navbar = () => {
                       />
 
                       {link.name}
-                    </motion.a>
-                  )
-                )}
+                    </Link>
+                  </motion.div>
+                ))}
               </div>
 
               {/* Mobile WhatsApp */}
               <div className="border-t border-slate-100 pt-5">
-
                 <p className="mb-3 text-center text-xs text-slate-400">
                   Having download issues?
                 </p>
